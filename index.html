@@ -1,0 +1,1614 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Liste de courses — Rentrée scolaire (CE2 · CM2 · 5ème)</title>
+<style>
+  :root{
+    --bg:#f4f6f8; --card:#fff; --ink:#1a2230; --muted:#6b7688;
+    --line:#e6e9ef; --accent:#2f6bff; --done:#9aa4b2;
+    --ce2:#0e9f6e; --cm2:#8b5cf6; --res:#d97706; --c5:#e11d48; --opt:#0891b2; --subj:#64748b;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.4;-webkit-font-smoothing:antialiased;padding-bottom:80px}
+  header{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.94);
+    backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:12px 16px}
+  .wrap{max-width:760px;margin:0 auto}
+  h1{font-size:19px;margin:0 0 2px}
+  .sub{color:var(--muted);font-size:13px}
+  .bar{height:8px;background:var(--line);border-radius:99px;margin-top:10px;overflow:hidden}
+  .bar>i{display:block;height:100%;width:0;background:var(--accent);border-radius:99px;transition:width .25s}
+  .stats{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:8px;font-size:13px;color:var(--muted)}
+  .stats b{color:var(--ink)}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .chip{border:1px solid var(--line);background:#fff;color:var(--muted);padding:6px 13px;border-radius:99px;font-size:13px;font-weight:600;cursor:pointer}
+  .chip.active{background:var(--accent);border-color:var(--accent);color:#fff}
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  button.tb{border:1px solid var(--line);background:#fff;color:var(--ink);padding:6px 11px;border-radius:8px;font-size:13px;cursor:pointer}
+  button.tb:hover{border-color:var(--accent);color:var(--accent)}
+  main{max-width:760px;margin:16px auto;padding:0 12px}
+  .cat{background:var(--card);border:1px solid var(--line);border-radius:14px;margin-bottom:14px;overflow:hidden}
+  .cat h2{font-size:14px;margin:0;padding:12px 16px;background:#fbfcfe;border-bottom:1px solid var(--line);
+    display:flex;align-items:center;gap:8px;text-transform:uppercase;letter-spacing:.04em}
+  .cat h2 .catcount{margin-left:auto;font-size:11px;color:var(--muted);font-weight:500;text-transform:none;letter-spacing:0}
+  .item{display:flex;gap:12px;align-items:flex-start;padding:12px 16px;border-bottom:1px solid var(--line);cursor:pointer;position:relative}
+  .item:last-child{border-bottom:0}
+  .item input{position:absolute;opacity:0;pointer-events:none}
+  .check{flex:0 0 22px;width:22px;height:22px;border:2px solid #c7cedb;border-radius:6px;margin-top:1px;display:grid;place-items:center;transition:.15s}
+  .check::after{content:"";width:11px;height:6px;border-left:2.5px solid #fff;border-bottom:2.5px solid #fff;transform:rotate(-45deg) scale(0);transition:transform .15s;margin-top:-2px}
+  .item input:checked ~ .check{background:var(--accent);border-color:var(--accent)}
+  .item input:checked ~ .check::after{transform:rotate(-45deg) scale(1)}
+  .qty{flex:0 0 auto;font-weight:700;font-size:14px;color:var(--accent);min-width:26px;margin-top:1px}
+  .qty-col{color:var(--c5);font-size:16px;text-align:center}
+  .body{display:flex;flex-direction:column;gap:4px;min-width:0}
+  .name{font-size:14.5px;font-weight:600}
+  .meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+  .note{font-style:italic}
+  .tag{font-size:10px;font-weight:700;padding:1px 6px;border-radius:99px;color:#fff;text-transform:uppercase;letter-spacing:.03em}
+  .tag-CE2{background:var(--ce2)} .tag-CM2{background:var(--cm2)} .tag-res{background:var(--res)}
+  .tag-c5{background:var(--c5)} .tag-opt{background:var(--opt)} .tag-subj{background:var(--subj);text-transform:none;letter-spacing:0;font-weight:600}
+  .detail{font-variant-numeric:tabular-nums}
+  .price{font-weight:600;color:var(--ink)}
+  .src{color:var(--accent);text-decoration:none}
+  .src:hover{text-decoration:underline}
+  .item.done{opacity:.55}
+  .item.done .name{text-decoration:line-through;color:var(--done)}
+  .item.done .qty{color:var(--done)}
+  .hide-done .item.done{display:none}
+  .filt-primaire .item.lv-college{display:none}
+  .filt-college .item.lv-primaire{display:none}
+  .legend{max-width:760px;margin:10px auto 0;padding:0 16px;font-size:12px;color:var(--muted);display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+  footer{max-width:760px;margin:24px auto;padding:0 16px;color:var(--muted);font-size:12px;text-align:center}
+</style>
+
+<header>
+  <div class="wrap">
+    <h1>🎒 Liste de courses — Rentrée scolaire</h1>
+    <div class="sub">Fournitures regroupées par rayon · CE2 &amp; CM2 (primaire) + 5ème (collège)</div>
+    <div class="bar"><i id="progbar"></i></div>
+    <div class="stats">
+      <span><b id="doneCount">0</b> / 111 lignes cochées</span>
+      <span>Primaire : <b>47</b> réf. (104 art.) · <b>230,75 €</b></span>
+      <span>Collège : <b>64</b> art.</span>
+    </div>
+    <div class="chips" id="filters">
+      <button class="chip active" data-filt="all">Tout</button>
+      <button class="chip" data-filt="primaire">Primaire (CE2·CM2)</button>
+      <button class="chip" data-filt="college">Collège (5ème)</button>
+    </div>
+    <div class="toolbar">
+      <button class="tb" id="toggleHide">Masquer les articles cochés</button>
+      <button class="tb" id="resetBtn">Tout décocher</button>
+    </div>
+  </div>
+</header>
+
+<div class="legend">
+  <span><span class="tag tag-CE2">CE2</span> <span class="tag tag-CM2">CM2</span> primaire (avec prix &amp; lien)</span>
+  <span><span class="tag tag-c5">5e</span> collège + <span class="tag tag-subj">matière</span></span>
+  <span><span class="tag tag-opt">option</span> selon l'option choisie</span>
+</div>
+
+<main id="list">
+  <section class="cat" data-cat="Cahiers &amp; feuilles">
+    <h2>Cahiers &amp; feuilles<span class="catcount">7 primaire · 20 collège</span></h2>
+    
+    <label class="item lv-primaire" for="p21989">
+      <input type="checkbox" id="p21989" data-id="p21989">
+      <span class="check"></span>
+      <span class="qty">1×</span>
+      <span class="body">
+        <span class="name">Bloc étudiant RHODIA A4 feuilles perforées grand carreaux</span>
+        <span class="meta">
+          <span class="tag tag-CE2">CE2</span>
+          <span class="detail">CE2 ×1</span>
+          <span class="price">4,20€</span>
+          <a class="src" href="https://www.rentreediscount.com/Bloc-etudiant-RHODIA-A4-feuilles-perforees-grand-carreaux-21989.html" target="_blank" rel="noopener">fiche produit ↗</a>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-histoire-geo-emc-0">
+      <input type="checkbox" id="c5-histoire-geo-emc-0" data-id="c5-histoire-geo-emc-0">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 cahier 24×32 grands carreaux 96 p</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Histoire-Géo &amp; EMC</span>
+          <span class="note">OU 3 cahiers 24×32 grands carreaux 48 p (pour alléger le cartable)</span>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-mathematiques-0">
+      <input type="checkbox" id="c5-mathematiques-0" data-id="c5-mathematiques-0">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 cahier 24×32, petits carreaux, 96 p + protège-cahier bleu</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Mathématiques</span>
+          <span class="note">À renouveler dans l’année</span>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-physique-chimie-0">
+      <input type="checkbox" id="c5-physique-chimie-0" data-id="c5-physique-chimie-0">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 cahier 24×32, petits carreaux, sans spirale, 48 p</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Physique-Chimie</span>
+          <span class="note">Réutiliser celui de 2024-2025 s’il reste de la place</span>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-latin-grec-ancien-0">
+      <input type="checkbox" id="c5-latin-grec-ancien-0" data-id="c5-latin-grec-ancien-0">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 cahier 48 p, grands carreaux, 24×32 cm</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Latin / Grec ancien</span><span class="tag tag-opt" title="Selon l'option choisie">option</span>
+          
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-allemand-lv2-0">
+      <input type="checkbox" id="c5-allemand-lv2-0" data-id="c5-allemand-lv2-0">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 cahier au choix, couverture rouge</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Allemand (LV2)</span><span class="tag tag-opt" title="Selon l'option choisie">option</span>
+          <span class="note">À garder pour l’année suivante si en état</span>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-svt-0">
+      <input type="checkbox" id="c5-svt-0" data-id="c5-svt-0">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">Cahier compagnon SVT HATIER</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">SVT</span>
+          <span class="note">ISBN 978-2-101-02153-2 (spécifique 5ème)</span>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-primaire" for="p24025">
+      <input type="checkbox" id="p24025" data-id="p24025">
+      <span class="check"></span>
+      <span class="qty">5×</span>
+      <span class="body">
+        <span class="name">Cahier de brouillon 17x22 96p 100% recyclé 56g Séyès grands carreaux</span>
+        <span class="meta">
+          <span class="tag tag-CE2">CE2</span><span class="tag tag-CM2">CM2</span>
+          <span class="detail">CE2 ×1 + CM2 ×4</span>
+          <span class="price">0,64€ · 3,20€</span>
+          <a class="src" href="https://www.rentreediscount.com/Cahier-de-brouillon-17x22-96p-100-recycle-56g-Seyes-grands-carreaux-24025.html" target="_blank" rel="noopener">fiche produit ↗</a>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-primaire" for="p23649">
+      <input type="checkbox" id="p23649" data-id="p23649">
+      <span class="check"></span>
+      <span class="qty">1×</span>
+      <span class="body">
+        <span class="name">Cahier de textes CLAIREFONTAINE à spirales</span>
+        <span class="meta">
+          <span class="tag tag-CE2">CE2</span>
+          <span class="detail">CE2 ×1</span>
+          <span class="price">3,23€</span>
+          <a class="src" href="https://www.rentreediscount.com/Cahier-de-textes-CLAIREFONTAINE-a-spirales-23649.html" target="_blank" rel="noopener">fiche produit ↗</a>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-francais-0">
+      <input type="checkbox" id="c5-francais-0" data-id="c5-francais-0">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">2 cahiers 96 p, grands carreaux, 24×32 cm</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Français</span>
+          <span class="note">À confirmer avec l’enseignant · À renouveler au besoin — OU 1 grand classeur A4 souple + 6 intercalaires</span>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-tous-les-jours-12">
+      <input type="checkbox" id="c5-tous-les-jours-12" data-id="c5-tous-les-jours-12">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">Copies doubles et simples</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Tous les jours</span>
+          <span class="note">Pour les interrogations</span>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-histoire-geo-emc-1">
+      <input type="checkbox" id="c5-histoire-geo-emc-1" data-id="c5-histoire-geo-emc-1">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">Copies doubles et simples, grands carreaux</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Histoire-Géo &amp; EMC</span>
+          
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-francais-3">
+      <input type="checkbox" id="c5-francais-3" data-id="c5-francais-3">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">Copies simples et doubles, grands carreaux</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Français</span>
+          <span class="note">À confirmer avec l’enseignant</span>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-latin-grec-ancien-1">
+      <input type="checkbox" id="c5-latin-grec-ancien-1" data-id="c5-latin-grec-ancien-1">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">Copies simples grands carreaux</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Latin / Grec ancien</span><span class="tag tag-opt" title="Selon l'option choisie">option</span>
+          <span class="note">Pour les évaluations</span>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-primaire" for="p20477198">
+      <input type="checkbox" id="p20477198" data-id="p20477198">
+      <span class="check"></span>
+      <span class="qty">1×</span>
+      <span class="body">
+        <span class="name">24 étiquettes scolaires autocollantes lignées</span>
+        <span class="meta">
+          <span class="tag tag-CE2">CE2</span>
+          <span class="detail">CE2 ×1</span>
+          <span class="price">0,95€</span>
+          <a class="src" href="https://www.rentreediscount.com/24-etiquettes-scolaires-autocollantes-lignees-20477198.html" target="_blank" rel="noopener">fiche produit ↗</a>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-physique-chimie-2">
+      <input type="checkbox" id="c5-physique-chimie-2" data-id="c5-physique-chimie-2">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 feuille de papier millimétré dans une pochette plastique</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Physique-Chimie</span>
+          
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-education-musicale-1">
+      <input type="checkbox" id="c5-education-musicale-1" data-id="c5-education-musicale-1">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">10 feuilles simples</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Éducation musicale</span>
+          <span class="note">Glissées au fond du porte-vue</span>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-technologie-1">
+      <input type="checkbox" id="c5-technologie-1" data-id="c5-technologie-1">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">Feuilles simples grand format, grands carreaux</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Technologie</span>
+          
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-espagnol-lv2-0">
+      <input type="checkbox" id="c5-espagnol-lv2-0" data-id="c5-espagnol-lv2-0">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 grand cahier 24×32 de 96 p</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Espagnol (LV2)</span><span class="tag tag-opt" title="Selon l'option choisie">option</span>
+          <span class="note">OU 2 cahiers + 1 protège-cahier 24×32 (si couverture non plastifiée)</span>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-anglais-0">
+      <input type="checkbox" id="c5-anglais-0" data-id="c5-anglais-0">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 grand cahier 24×32, 96 p</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Anglais</span>
+          <span class="note">OU 2 à 3 cahiers 48 pages</span>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-arts-plastiques-0">
+      <input type="checkbox" id="c5-arts-plastiques-0" data-id="c5-arts-plastiques-0">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 grand cahier de T.P., 48 à 96 p (feuille blanche/carreaux)</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Arts plastiques</span>
+          <span class="note">Ou celui de l’année dernière</span>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-allemand-lv2-1">
+      <input type="checkbox" id="c5-allemand-lv2-1" data-id="c5-allemand-lv2-1">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">Livre-Cahier Hachette 1re année</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Allemand (LV2)</span><span class="tag tag-opt" title="Selon l'option choisie">option</span>
+          <span class="note">ISBN 978-2-01-725760-8 (5ème)</span>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-primaire" for="p138986132">
+      <input type="checkbox" id="p138986132" data-id="p138986132">
+      <span class="check"></span>
+      <span class="qty">2×</span>
+      <span class="body">
+        <span class="name">Lot de 2 ramettes 200 feuilles A4 CLAIREFONTAINE 80g extra blanc</span>
+        <span class="meta">
+          <span class="tag tag-CE2">CE2</span><span class="tag tag-CM2">CM2</span>
+          <span class="detail">CE2 ×1 + CM2 ×1</span>
+          <span class="price">7,98€ · 15,96€</span>
+          <a class="src" href="https://www.rentreediscount.com/Lot-de-2-ramettes-200-feuilles-A4-CLAIREFONTAINE-80g-extra-blanc-138986132.html" target="_blank" rel="noopener">fiche produit ↗</a>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-mathematiques-7">
+      <input type="checkbox" id="c5-mathematiques-7" data-id="c5-mathematiques-7">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">4 ou 5 feuilles de papier calque</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Mathématiques</span>
+          
+        </span>
+      </span>
+    </label>
+    <label class="item lv-primaire" for="p23277">
+      <input type="checkbox" id="p23277" data-id="p23277">
+      <span class="check"></span>
+      <span class="qty">2×</span>
+      <span class="body">
+        <span class="name">300P CALLIGRAPHE A4 copies simples feuilles perforées Séyès</span>
+        <span class="meta">
+          <span class="tag tag-CE2">CE2</span><span class="tag tag-CM2">CM2</span>
+          <span class="detail">CE2 ×1 + CM2 ×1</span>
+          <span class="price">4,04€ · 8,08€</span>
+          <a class="src" href="https://www.rentreediscount.com/300P-CALLIGRAPHE-A4-copies-simples-feuilles-perforees-Seyes-23277.html" target="_blank" rel="noopener">fiche produit ↗</a>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-arts-plastiques-3">
+      <input type="checkbox" id="c5-arts-plastiques-3" data-id="c5-arts-plastiques-3">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 pochette calque</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Arts plastiques</span>
+          
+        </span>
+      </span>
+    </label>
+    <label class="item lv-primaire" for="p29620845">
+      <input type="checkbox" id="p29620845" data-id="p29620845">
+      <span class="check"></span>
+      <span class="qty">1×</span>
+      <span class="body">
+        <span class="name">Protège-cahiers à rabat marque-pages 17x22cm Incolore</span>
+        <span class="meta">
+          <span class="tag tag-CE2">CE2</span>
+          <span class="detail">CE2 ×1</span>
+          <span class="price">1,95€</span>
+          <a class="src" href="https://www.rentreediscount.com/Protege-cahiers-a-rabat-marque-pages-17x22cm-Incolore-29620845.html" target="_blank" rel="noopener">fiche produit ↗</a>
+        </span>
+      </span>
+    </label>
+  </section><section class="cat" data-cat="Classeurs &amp; rangement">
+    <h2>Classeurs &amp; rangement<span class="catcount">14 primaire · 10 collège</span></h2>
+    
+    <label class="item lv-primaire" for="p18440">
+      <input type="checkbox" id="p18440" data-id="p18440">
+      <span class="check"></span>
+      <span class="qty">1×</span>
+      <span class="body">
+        <span class="name">Chemise 3 rabats GRAPHMATE carton coloris au choix Bleue</span>
+        <span class="meta">
+          <span class="tag tag-CE2">CE2</span>
+          <span class="detail">CE2 ×1</span>
+          <span class="price">0,99€</span>
+          <a class="src" href="https://www.rentreediscount.com/Chemise-3-rabats-GRAPHMATE-carton-coloris-au-choix-Bleue-18440.html" target="_blank" rel="noopener">fiche produit ↗</a>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-primaire" for="p18444">
+      <input type="checkbox" id="p18444" data-id="p18444">
+      <span class="check"></span>
+      <span class="qty">2×</span>
+      <span class="body">
+        <span class="name">Chemise 3 rabats GRAPHMATE carton coloris au choix Rouge</span>
+        <span class="meta">
+          <span class="tag tag-CE2">CE2</span><span class="tag tag-CM2">CM2</span>
+          <span class="detail">CE2 ×1 + CM2 ×1</span>
+          <span class="price">0,99€ · 1,98€</span>
+          <a class="src" href="https://www.rentreediscount.com/Chemise-3-rabats-GRAPHMATE-carton-coloris-au-choix-Rouge-18444.html" target="_blank" rel="noopener">fiche produit ↗</a>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-primaire" for="p18447">
+      <input type="checkbox" id="p18447" data-id="p18447">
+      <span class="check"></span>
+      <span class="qty">1×</span>
+      <span class="body">
+        <span class="name">Chemise 3 rabats GRAPHMATE carton coloris au choix Verte</span>
+        <span class="meta">
+          <span class="tag tag-CE2">CE2</span>
+          <span class="detail">CE2 ×1</span>
+          <span class="price">0,99€</span>
+          <a class="src" href="https://www.rentreediscount.com/Chemise-3-rabats-GRAPHMATE-carton-coloris-au-choix-Verte-18447.html" target="_blank" rel="noopener">fiche produit ↗</a>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-tous-les-jours-10">
+      <input type="checkbox" id="c5-tous-les-jours-10" data-id="c5-tous-les-jours-10">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">Chemise à rabats avec copies simples et doubles</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Tous les jours</span>
+          <span class="note">À laisser dans le cartable</span>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-primaire" for="p18476">
+      <input type="checkbox" id="p18476" data-id="p18476">
+      <span class="check"></span>
+      <span class="qty">1×</span>
+      <span class="body">
+        <span class="name">Classeur A4 EXACOMPTA 4 Anneaux Dos 4cm Bleu Classeur</span>
+        <span class="meta">
+          <span class="tag tag-CM2">CM2</span>
+          <span class="detail">CM2 ×1</span>
+          <span class="price">2,33€</span>
+          <a class="src" href="https://www.rentreediscount.com/Classeur-A4-EXACOMPTA-4-Anneaux-Dos-4cm-Bleu-Classeur-18476.html" target="_blank" rel="noopener">fiche produit ↗</a>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-primaire" for="p18482">
+      <input type="checkbox" id="p18482" data-id="p18482">
+      <span class="check"></span>
+      <span class="qty">1×</span>
+      <span class="body">
+        <span class="name">Classeur A4 EXACOMPTA 4 Anneaux Dos 4cm Rouge</span>
+        <span class="meta">
+          <span class="tag tag-CE2">CE2</span>
+          <span class="detail">CE2 ×1</span>
+          <span class="price">2,33€</span>
+          <a class="src" href="https://www.rentreediscount.com/Classeur-A4-EXACOMPTA-4-Anneaux-Dos-4cm-Rouge-18482.html" target="_blank" rel="noopener">fiche produit ↗</a>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-technologie-0">
+      <input type="checkbox" id="c5-technologie-0" data-id="c5-technologie-0">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 classeur souple A4</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Technologie</span>
+          
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-technologie-3">
+      <input type="checkbox" id="c5-technologie-3" data-id="c5-technologie-3">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">3 intercalaires</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Technologie</span>
+          
+        </span>
+      </span>
+    </label>
+    <label class="item lv-primaire" for="p18468">
+      <input type="checkbox" id="p18468" data-id="p18468">
+      <span class="check"></span>
+      <span class="qty">1×</span>
+      <span class="body">
+        <span class="name">Intercalaires carton 6 ou 12 touches pour classeurs A4 Intercalaires carton 12 touches</span>
+        <span class="meta">
+          <span class="tag tag-CM2">CM2</span>
+          <span class="detail">CM2 ×1</span>
+          <span class="price">1,30€</span>
+          <a class="src" href="https://www.rentreediscount.com/Intercalaires-carton-6-ou-12-touches-pour-classeurs-A4-Intercalaires-carton-12-touches-18468.html" target="_blank" rel="noopener">fiche produit ↗</a>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-primaire" for="p18465">
+      <input type="checkbox" id="p18465" data-id="p18465">
+      <span class="check"></span>
+      <span class="qty">1×</span>
+      <span class="body">
+        <span class="name">Intercalaires carton 6 ou 12 touches pour classeurs A4 Intercalaires carton 6 touches</span>
+        <span class="meta">
+          <span class="tag tag-CE2">CE2</span>
+          <span class="detail">CE2 ×1</span>
+          <span class="price">0,78€</span>
+          <a class="src" href="https://www.rentreediscount.com/Intercalaires-carton-6-ou-12-touches-pour-classeurs-A4-Intercalaires-carton-6-touches-18465.html" target="_blank" rel="noopener">fiche produit ↗</a>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-histoire-geo-emc-3">
+      <input type="checkbox" id="c5-histoire-geo-emc-3" data-id="c5-histoire-geo-emc-3">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 pochette à rabats (avec élastique) format A4</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Histoire-Géo &amp; EMC</span>
+          
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-francais-2">
+      <input type="checkbox" id="c5-francais-2" data-id="c5-francais-2">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 pochette cartonnée</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Français</span>
+          <span class="note">À confirmer avec l’enseignant</span>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-arts-plastiques-1">
+      <input type="checkbox" id="c5-arts-plastiques-1" data-id="c5-arts-plastiques-1">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 pochette plastique</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Arts plastiques</span>
+          
+        </span>
+      </span>
+    </label>
+    <label class="item lv-primaire" for="p20598131">
+      <input type="checkbox" id="p20598131" data-id="p20598131">
+      <span class="check"></span>
+      <span class="qty">1×</span>
+      <span class="body">
+        <span class="name">Pochette trousse zippée transparente 19x25cm</span>
+        <span class="meta">
+          <span class="tag tag-CE2">CE2</span><span class="tag tag-res" title="À garder en réserve pour l'année">réserve</span>
+          <span class="detail">CE2 réserve ×1</span>
+          <span class="price">1,39€</span>
+          <a class="src" href="https://www.rentreediscount.com/Pochette-trousse-zippee-transparente-19x25cm-20598131.html" target="_blank" rel="noopener">fiche produit ↗</a>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-primaire" for="p23903">
+      <input type="checkbox" id="p23903" data-id="p23903">
+      <span class="check"></span>
+      <span class="qty">1×</span>
+      <span class="body">
+        <span class="name">100 Pochettes perforées A4 Exacompta Avec bande renforcée</span>
+        <span class="meta">
+          <span class="tag tag-CM2">CM2</span>
+          <span class="detail">CM2 ×1</span>
+          <span class="price">3,99€</span>
+          <a class="src" href="https://www.rentreediscount.com/100-Pochettes-perforees-A4-Exacompta-Avec-bande-renforcee-23903.html" target="_blank" rel="noopener">fiche produit ↗</a>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-primaire" for="p29610772">
+      <input type="checkbox" id="p29610772" data-id="p29610772">
+      <span class="check"></span>
+      <span class="qty">1×</span>
+      <span class="body">
+        <span class="name">50 Pochettes perforées GRAPHMATE A4</span>
+        <span class="meta">
+          <span class="tag tag-CE2">CE2</span>
+          <span class="detail">CE2 ×1</span>
+          <span class="price">2,88€</span>
+          <a class="src" href="https://www.rentreediscount.com/50-Pochettes-perforees-GRAPHMATE-A4-29610772.html" target="_blank" rel="noopener">fiche produit ↗</a>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-technologie-2">
+      <input type="checkbox" id="c5-technologie-2" data-id="c5-technologie-2">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">Pochettes transparentes (40 au moins)</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Technologie</span>
+          
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-education-musicale-0">
+      <input type="checkbox" id="c5-education-musicale-0" data-id="c5-education-musicale-0">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 porte-vues (40 vues)</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Éducation musicale</span>
+          
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-physique-chimie-1">
+      <input type="checkbox" id="c5-physique-chimie-1" data-id="c5-physique-chimie-1">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 protège-cahier</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Physique-Chimie</span>
+          
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-mathematiques-8">
+      <input type="checkbox" id="c5-mathematiques-8" data-id="c5-mathematiques-8">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 protège-cahier grand format (24×32)</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Mathématiques</span>
+          
+        </span>
+      </span>
+    </label>
+    <label class="item lv-primaire" for="p18637">
+      <input type="checkbox" id="p18637" data-id="p18637">
+      <span class="check"></span>
+      <span class="qty">1×</span>
+      <span class="body">
+        <span class="name">Protège-documents A4 EXACOMPTA 160 vues - 80 pochettes Protège-doc 160V bleu</span>
+        <span class="meta">
+          <span class="tag tag-CM2">CM2</span>
+          <span class="detail">CM2 ×1</span>
+          <span class="price">4,62€</span>
+          <a class="src" href="https://www.rentreediscount.com/Protege-documents-A4-EXACOMPTA-160-vues-80-pochettes-Protege-doc-160V-bleu-18637.html" target="_blank" rel="noopener">fiche produit ↗</a>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-primaire" for="p18644">
+      <input type="checkbox" id="p18644" data-id="p18644">
+      <span class="check"></span>
+      <span class="qty">1×</span>
+      <span class="body">
+        <span class="name">Protège-documents A4 EXACOMPTA 160 vues - 80 pochettes Protège-doc 160V rouge</span>
+        <span class="meta">
+          <span class="tag tag-CE2">CE2</span>
+          <span class="detail">CE2 ×1</span>
+          <span class="price">4,62€</span>
+          <a class="src" href="https://www.rentreediscount.com/Protege-documents-A4-EXACOMPTA-160-vues-80-pochettes-Protege-doc-160V-rouge-18644.html" target="_blank" rel="noopener">fiche produit ↗</a>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-primaire" for="p29620821">
+      <input type="checkbox" id="p29620821" data-id="p29620821">
+      <span class="check"></span>
+      <span class="qty">1×</span>
+      <span class="body">
+        <span class="name">Protège-documents EXACOMPTA A4 80 vues - 40 porte-vues Vert</span>
+        <span class="meta">
+          <span class="tag tag-CE2">CE2</span>
+          <span class="detail">CE2 ×1</span>
+          <span class="price">2,34€</span>
+          <a class="src" href="https://www.rentreediscount.com/Protege-documents-EXACOMPTA-A4-80-vues-40-porte-vues-Vert-29620821.html" target="_blank" rel="noopener">fiche produit ↗</a>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-primaire" for="p66979176">
+      <input type="checkbox" id="p66979176" data-id="p66979176">
+      <span class="check"></span>
+      <span class="qty">2×</span>
+      <span class="body">
+        <span class="name">Trousse rectangulaire 3 compartiments grise</span>
+        <span class="meta">
+          <span class="tag tag-CE2">CE2</span><span class="tag tag-CM2">CM2</span>
+          <span class="detail">CE2 ×1 + CM2 ×1</span>
+          <span class="price">4,89€ · 9,78€</span>
+          <a class="src" href="https://www.rentreediscount.com/Trousse-rectangulaire-3-compartiments-grise-66979176.html" target="_blank" rel="noopener">fiche produit ↗</a>
+        </span>
+      </span>
+    </label>
+  </section><section class="cat" data-cat="Écriture">
+    <h2>Écriture<span class="catcount">9 primaire · 5 collège</span></h2>
+    
+    <label class="item lv-college" for="c5-mathematiques-5">
+      <input type="checkbox" id="c5-mathematiques-5" data-id="c5-mathematiques-5">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 crayon à papier</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Mathématiques</span>
+          
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-tous-les-jours-1">
+      <input type="checkbox" id="c5-tous-les-jours-1" data-id="c5-tous-les-jours-1">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">Crayon à papier HB + porte-mine</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Tous les jours</span>
+          
+        </span>
+      </span>
+    </label>
+    <label class="item lv-primaire" for="p19208">
+      <input type="checkbox" id="p19208" data-id="p19208">
+      <span class="check"></span>
+      <span class="qty">9×</span>
+      <span class="body">
+        <span class="name">Crayon papier LYRA Tête trempée 6B 5B 4B 3B 2B B HB H 2H 3H 4H Crayon mine HB - le plus vendu</span>
+        <span class="meta">
+          <span class="tag tag-CE2">CE2</span><span class="tag tag-CM2">CM2</span><span class="tag tag-res" title="À garder en réserve pour l'année">réserve</span>
+          <span class="detail">CE2 ×1 + CE2 réserve ×5 + CM2 ×3</span>
+          <span class="price">0,71€ · 6,39€</span>
+          <a class="src" href="https://www.rentreediscount.com/Crayon-papier-LYRA-Tete-trempee-6B-5B-4B-3B-2B-B-HB-H-2H-3H-4H-Crayon-mine-HB-le-plus-vendu-19208.html" target="_blank" rel="noopener">fiche produit ↗</a>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-primaire" for="p16671">
+      <input type="checkbox" id="p16671" data-id="p16671">
+      <span class="check"></span>
+      <span class="qty">1×</span>
+      <span class="body">
+        <span class="name">Feutre marqueur Stabilo permanent OHPen Fin Noir</span>
+        <span class="meta">
+          <span class="tag tag-CE2">CE2</span>
+          <span class="detail">CE2 ×1</span>
+          <span class="price">1,18€</span>
+          <a class="src" href="https://www.rentreediscount.com/Feutre-marqueur-Stabilo-permanent-OHPen-Fin-Noir-16671.html" target="_blank" rel="noopener">fiche produit ↗</a>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-arts-plastiques-7">
+      <input type="checkbox" id="c5-arts-plastiques-7" data-id="c5-arts-plastiques-7">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 marqueur noir moyen</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Arts plastiques</span>
+          
+        </span>
+      </span>
+    </label>
+    <label class="item lv-primaire" for="p123844">
+      <input type="checkbox" id="p123844" data-id="p123844">
+      <span class="check"></span>
+      <span class="qty">4×</span>
+      <span class="body">
+        <span class="name">3 recharges pour Pilot Frixion roller Bleu</span>
+        <span class="meta">
+          <span class="tag tag-CE2">CE2</span><span class="tag tag-CM2">CM2</span><span class="tag tag-res" title="À garder en réserve pour l'année">réserve</span>
+          <span class="detail">CE2 ×1 + CE2 réserve ×2 + CM2 ×1</span>
+          <span class="price">4,68€ · 18,72€</span>
+          <a class="src" href="https://www.rentreediscount.com/3-recharges-pour-Pilot-Frixion-roller-Bleu-123844.html" target="_blank" rel="noopener">fiche produit ↗</a>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-primaire" for="p123851">
+      <input type="checkbox" id="p123851" data-id="p123851">
+      <span class="check"></span>
+      <span class="qty">3×</span>
+      <span class="body">
+        <span class="name">3 recharges pour Pilot Frixion roller Vert</span>
+        <span class="meta">
+          <span class="tag tag-CE2">CE2</span><span class="tag tag-res" title="À garder en réserve pour l'année">réserve</span>
+          <span class="detail">CE2 ×2 + CE2 réserve ×1</span>
+          <span class="price">4,68€ · 14,04€</span>
+          <a class="src" href="https://www.rentreediscount.com/3-recharges-pour-Pilot-Frixion-roller-Vert-123851.html" target="_blank" rel="noopener">fiche produit ↗</a>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-primaire" for="p19438">
+      <input type="checkbox" id="p19438" data-id="p19438">
+      <span class="check"></span>
+      <span class="qty">5×</span>
+      <span class="body">
+        <span class="name">Stylo bille Bic cristal Pointe moyenne encre noire</span>
+        <span class="meta">
+          <span class="tag tag-CE2">CE2</span><span class="tag tag-CM2">CM2</span>
+          <span class="detail">CE2 ×2 + CM2 ×3</span>
+          <span class="price">0,34€ · 1,70€</span>
+          <a class="src" href="https://www.rentreediscount.com/Stylo-bille-Bic-cristal-Pointe-moyenne-encre-noire-19438.html" target="_blank" rel="noopener">fiche produit ↗</a>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-primaire" for="p19441">
+      <input type="checkbox" id="p19441" data-id="p19441">
+      <span class="check"></span>
+      <span class="qty">4×</span>
+      <span class="body">
+        <span class="name">Stylo bille Bic cristal Pointe moyenne encre rouge</span>
+        <span class="meta">
+          <span class="tag tag-CE2">CE2</span><span class="tag tag-CM2">CM2</span>
+          <span class="detail">CE2 ×1 + CM2 ×3</span>
+          <span class="price">0,34€ · 1,36€</span>
+          <a class="src" href="https://www.rentreediscount.com/Stylo-bille-Bic-cristal-Pointe-moyenne-encre-rouge-19441.html" target="_blank" rel="noopener">fiche produit ↗</a>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-primaire" for="p19445">
+      <input type="checkbox" id="p19445" data-id="p19445">
+      <span class="check"></span>
+      <span class="qty">3×</span>
+      <span class="body">
+        <span class="name">Stylo bille Bic cristal Pointe moyenne encre verte</span>
+        <span class="meta">
+          <span class="tag tag-CM2">CM2</span>
+          <span class="detail">CM2 ×3</span>
+          <span class="price">0,34€ · 1,02€</span>
+          <a class="src" href="https://www.rentreediscount.com/Stylo-bille-Bic-cristal-Pointe-moyenne-encre-verte-19445.html" target="_blank" rel="noopener">fiche produit ↗</a>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-francais-4">
+      <input type="checkbox" id="c5-francais-4" data-id="c5-francais-4">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 stylo de chaque couleur</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Français</span>
+          <span class="note">À confirmer avec l’enseignant · Pas de stylo 4 couleurs</span>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-primaire" for="p19117">
+      <input type="checkbox" id="p19117" data-id="p19117">
+      <span class="check"></span>
+      <span class="qty">4×</span>
+      <span class="body">
+        <span class="name">Stylo roller Pilot Frixion effaçable et rechargeable Stylo bleu</span>
+        <span class="meta">
+          <span class="tag tag-CE2">CE2</span><span class="tag tag-CM2">CM2</span><span class="tag tag-res" title="À garder en réserve pour l'année">réserve</span>
+          <span class="detail">CE2 ×1 + CE2 réserve ×2 + CM2 ×1</span>
+          <span class="price">2,22€ · 8,88€</span>
+          <a class="src" href="https://www.rentreediscount.com/Stylo-roller-Pilot-Frixion-effacable-et-rechargeable-Stylo-bleu-19117.html" target="_blank" rel="noopener">fiche produit ↗</a>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-primaire" for="p19130">
+      <input type="checkbox" id="p19130" data-id="p19130">
+      <span class="check"></span>
+      <span class="qty">2×</span>
+      <span class="body">
+        <span class="name">Stylo roller Pilot Frixion effaçable et rechargeable Stylo vert</span>
+        <span class="meta">
+          <span class="tag tag-CE2">CE2</span>
+          <span class="detail">CE2 ×2</span>
+          <span class="price">2,22€ · 4,44€</span>
+          <a class="src" href="https://www.rentreediscount.com/Stylo-roller-Pilot-Frixion-effacable-et-rechargeable-Stylo-vert-19130.html" target="_blank" rel="noopener">fiche produit ↗</a>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-tous-les-jours-0">
+      <input type="checkbox" id="c5-tous-les-jours-0" data-id="c5-tous-les-jours-0">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">Stylos : noir, bleu, rouge, vert</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Tous les jours</span>
+          <span class="note">Dans la trousse — stylo 4 couleurs NON autorisé</span>
+        </span>
+      </span>
+    </label>
+  </section><section class="cat" data-cat="Couleurs &amp; dessin">
+    <h2>Couleurs &amp; dessin<span class="catcount">4 primaire · 8 collège</span></h2>
+    
+    <label class="item lv-college" for="c5-arts-plastiques-5">
+      <input type="checkbox" id="c5-arts-plastiques-5" data-id="c5-arts-plastiques-5">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 boîte de crayons de couleurs</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Arts plastiques</span>
+          
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-arts-plastiques-6">
+      <input type="checkbox" id="c5-arts-plastiques-6" data-id="c5-arts-plastiques-6">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 boîte de feutres assez épais</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Arts plastiques</span>
+          
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-arts-plastiques-9">
+      <input type="checkbox" id="c5-arts-plastiques-9" data-id="c5-arts-plastiques-9">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 boîte de peinture acrylique (couleurs primaires)</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Arts plastiques</span>
+          <span class="note">Facultatif</span>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-histoire-geo-emc-2">
+      <input type="checkbox" id="c5-histoire-geo-emc-2" data-id="c5-histoire-geo-emc-2">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">Crayons de couleurs</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Histoire-Géo &amp; EMC</span>
+          
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-tous-les-jours-7">
+      <input type="checkbox" id="c5-tous-les-jours-7" data-id="c5-tous-les-jours-7">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">Crayons de couleurs (6 à 8)</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Tous les jours</span>
+          
+        </span>
+      </span>
+    </label>
+    <label class="item lv-primaire" for="p193347932">
+      <input type="checkbox" id="p193347932" data-id="p193347932">
+      <span class="check"></span>
+      <span class="qty">2×</span>
+      <span class="body">
+        <span class="name">12 crayons de couleurs MAPED Born to be Creative</span>
+        <span class="meta">
+          <span class="tag tag-CE2">CE2</span><span class="tag tag-CM2">CM2</span>
+          <span class="detail">CE2 ×1 + CM2 ×1</span>
+          <span class="price">2,45€ · 4,90€</span>
+          <a class="src" href="https://www.rentreediscount.com/12-crayons-de-couleurs-MAPED-Born-to-be-Creative-193347932.html" target="_blank" rel="noopener">fiche produit ↗</a>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-primaire" for="p40592824">
+      <input type="checkbox" id="p40592824" data-id="p40592824">
+      <span class="check"></span>
+      <span class="qty">2×</span>
+      <span class="body">
+        <span class="name">12 feutres STABILO Trio A-Z pointe moyenne</span>
+        <span class="meta">
+          <span class="tag tag-CE2">CE2</span><span class="tag tag-CM2">CM2</span>
+          <span class="detail">CE2 ×1 + CM2 ×1</span>
+          <span class="price">3,09€ · 6,18€</span>
+          <a class="src" href="https://www.rentreediscount.com/12-feutres-STABILO-Trio-A-Z-pointe-moyenne-40592824.html" target="_blank" rel="noopener">fiche produit ↗</a>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-primaire" for="p23436">
+      <input type="checkbox" id="p23436" data-id="p23436">
+      <span class="check"></span>
+      <span class="qty">1×</span>
+      <span class="body">
+        <span class="name">Gouache en pastilles 12 pastilles</span>
+        <span class="meta">
+          <span class="tag tag-CE2">CE2</span>
+          <span class="detail">CE2 ×1</span>
+          <span class="price">4,53€</span>
+          <a class="src" href="https://www.rentreediscount.com/Gouache-en-pastilles-12-pastilles-23436.html" target="_blank" rel="noopener">fiche produit ↗</a>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-arts-plastiques-2">
+      <input type="checkbox" id="c5-arts-plastiques-2" data-id="c5-arts-plastiques-2">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 grande pochette Canson format A3</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Arts plastiques</span>
+          
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-education-musicale-2">
+      <input type="checkbox" id="c5-education-musicale-2" data-id="c5-education-musicale-2">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 surligneur</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Éducation musicale</span>
+          
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-tous-les-jours-8">
+      <input type="checkbox" id="c5-tous-les-jours-8" data-id="c5-tous-les-jours-8">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">Surligneurs</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Tous les jours</span>
+          
+        </span>
+      </span>
+    </label>
+    <label class="item lv-primaire" for="p164092423">
+      <input type="checkbox" id="p164092423" data-id="p164092423">
+      <span class="check"></span>
+      <span class="qty">2×</span>
+      <span class="body">
+        <span class="name">6 Surligneurs Fluo pointe biseautée</span>
+        <span class="meta">
+          <span class="tag tag-CE2">CE2</span><span class="tag tag-CM2">CM2</span>
+          <span class="detail">CE2 ×1 + CM2 ×1</span>
+          <span class="price">3,63€ · 7,26€</span>
+          <a class="src" href="https://www.rentreediscount.com/6-Surligneurs-Fluo-pointe-biseautee-164092423.html" target="_blank" rel="noopener">fiche produit ↗</a>
+        </span>
+      </span>
+    </label>
+  </section><section class="cat" data-cat="Ardoise">
+    <h2>Ardoise<span class="catcount">3 primaire</span></h2>
+    
+    <label class="item lv-primaire" for="p20552067">
+      <input type="checkbox" id="p20552067" data-id="p20552067">
+      <span class="check"></span>
+      <span class="qty">1×</span>
+      <span class="body">
+        <span class="name">Chiffonnette en microfibres pour ardoise et tableau blanc 20 x 20 cm bleue</span>
+        <span class="meta">
+          <span class="tag tag-CE2">CE2</span>
+          <span class="detail">CE2 ×1</span>
+          <span class="price">1,31€</span>
+          <a class="src" href="https://www.rentreediscount.com/Chiffonnette-en-microfibres-pour-ardoise-et-tableau-blanc-20-x-20-cm-bleue-20552067.html" target="_blank" rel="noopener">fiche produit ↗</a>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-primaire" for="p193209712">
+      <input type="checkbox" id="p193209712" data-id="p193209712">
+      <span class="check"></span>
+      <span class="qty">1×</span>
+      <span class="body">
+        <span class="name">Kit ardoise blanche scolaire ultra résistante GRAPHMATE avec feutre effaçable et mini brosse</span>
+        <span class="meta">
+          <span class="tag tag-CE2">CE2</span>
+          <span class="detail">CE2 ×1</span>
+          <span class="price">2,79€</span>
+          <a class="src" href="https://www.rentreediscount.com/Kit-ardoise-blanche-scolaire-ultra-resistante-GRAPHMATE-avec-feutre-effacable-et-mini-brosse-193209712.html" target="_blank" rel="noopener">fiche produit ↗</a>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-primaire" for="p193688792">
+      <input type="checkbox" id="p193688792" data-id="p193688792">
+      <span class="check"></span>
+      <span class="qty">2×</span>
+      <span class="body">
+        <span class="name">Set de 3 feutres GRAPHMATE pour ardoise blanche pointe fine bleu gamme ENDURANCE</span>
+        <span class="meta">
+          <span class="tag tag-CE2">CE2</span><span class="tag tag-res" title="À garder en réserve pour l'année">réserve</span>
+          <span class="detail">CE2 ×1 + CE2 réserve ×1</span>
+          <span class="price">2,26€ · 4,52€</span>
+          <a class="src" href="https://www.rentreediscount.com/Set-de-3-feutres-GRAPHMATE-pour-ardoise-blanche-pointe-moyenne-bleu-193688792.html" target="_blank" rel="noopener">fiche produit ↗</a>
+        </span>
+      </span>
+    </label>
+  </section><section class="cat" data-cat="Géométrie &amp; calcul">
+    <h2>Géométrie &amp; calcul<span class="catcount">4 primaire · 6 collège</span></h2>
+    
+    <label class="item lv-primaire" for="p138640036">
+      <input type="checkbox" id="p138640036" data-id="p138640036">
+      <span class="check"></span>
+      <span class="qty">1×</span>
+      <span class="body">
+        <span class="name">Calculatrice CASIO petite FX bleue - primaire ou de poche</span>
+        <span class="meta">
+          <span class="tag tag-CM2">CM2</span>
+          <span class="detail">CM2 ×1</span>
+          <span class="price">9,12€</span>
+          <a class="src" href="https://www.rentreediscount.com/Calculatrice-primaire-CASIO-petite-FX-bleue-138640036.html" target="_blank" rel="noopener">fiche produit ↗</a>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-tous-les-jours-14">
+      <input type="checkbox" id="c5-tous-les-jours-14" data-id="c5-tous-les-jours-14">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">Calculatrice type collège (Texas Instrument ou Casio)</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Tous les jours</span>
+          <span class="note">Achetée en 6ème — vérifier qu’elle fonctionne</span>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-primaire" for="p128978">
+      <input type="checkbox" id="p128978" data-id="p128978">
+      <span class="check"></span>
+      <span class="qty">1×</span>
+      <span class="body">
+        <span class="name">Coffret compas bague MAPED Stop &amp; Safe</span>
+        <span class="meta">
+          <span class="tag tag-CM2">CM2</span>
+          <span class="detail">CM2 ×1</span>
+          <span class="price">4,64€</span>
+          <a class="src" href="https://www.rentreediscount.com/Coffret-compas-bague-MAPED-Stop-Safe-128978.html" target="_blank" rel="noopener">fiche produit ↗</a>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-mathematiques-3">
+      <input type="checkbox" id="c5-mathematiques-3" data-id="c5-mathematiques-3">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 compas</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Mathématiques</span>
+          
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-mathematiques-4">
+      <input type="checkbox" id="c5-mathematiques-4" data-id="c5-mathematiques-4">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 équerre</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Mathématiques</span>
+          
+        </span>
+      </span>
+    </label>
+    <label class="item lv-primaire" for="p23695">
+      <input type="checkbox" id="p23695" data-id="p23695">
+      <span class="check"></span>
+      <span class="qty">2×</span>
+      <span class="body">
+        <span class="name">Equerre 21 cm 60 degrés Incassable</span>
+        <span class="meta">
+          <span class="tag tag-CE2">CE2</span><span class="tag tag-CM2">CM2</span>
+          <span class="detail">CE2 ×1 + CM2 ×1</span>
+          <span class="price">1,30€ · 2,60€</span>
+          <a class="src" href="https://www.rentreediscount.com/Equerre-21-cm-60-degres-Incassable-23695.html" target="_blank" rel="noopener">fiche produit ↗</a>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-mathematiques-2">
+      <input type="checkbox" id="c5-mathematiques-2" data-id="c5-mathematiques-2">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 rapporteur transparent gradué de 0 à 180° dans les deux sens</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Mathématiques</span>
+          
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-tous-les-jours-4">
+      <input type="checkbox" id="c5-tous-les-jours-4" data-id="c5-tous-les-jours-4">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">Règle</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Tous les jours</span>
+          
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-mathematiques-1">
+      <input type="checkbox" id="c5-mathematiques-1" data-id="c5-mathematiques-1">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 règle graduée plate et transparente 20 cm</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Mathématiques</span>
+          
+        </span>
+      </span>
+    </label>
+    <label class="item lv-primaire" for="p12722750">
+      <input type="checkbox" id="p12722750" data-id="p12722750">
+      <span class="check"></span>
+      <span class="qty">2×</span>
+      <span class="body">
+        <span class="name">Règle plate incassable double décimètre GRAPHMATE</span>
+        <span class="meta">
+          <span class="tag tag-CE2">CE2</span><span class="tag tag-CM2">CM2</span>
+          <span class="detail">CE2 ×1 + CM2 ×1</span>
+          <span class="price">0,91€ · 1,82€</span>
+          <a class="src" href="https://www.rentreediscount.com/Regle-plate-incassable-double-decimetre-GRAPHMATE-12722750.html" target="_blank" rel="noopener">fiche produit ↗</a>
+        </span>
+      </span>
+    </label>
+  </section><section class="cat" data-cat="Colle, coupe &amp; correction">
+    <h2>Colle, coupe &amp; correction<span class="catcount">4 primaire · 7 collège</span></h2>
+    
+    <label class="item lv-primaire" for="p29610925">
+      <input type="checkbox" id="p29610925" data-id="p29610925">
+      <span class="check"></span>
+      <span class="qty">2×</span>
+      <span class="body">
+        <span class="name">Ciseaux ambidextre GRAPHMATE 14cm droitier et gaucher</span>
+        <span class="meta">
+          <span class="tag tag-CE2">CE2</span><span class="tag tag-CM2">CM2</span>
+          <span class="detail">CE2 ×1 + CM2 ×1</span>
+          <span class="price">1,94€ · 3,88€</span>
+          <a class="src" href="https://www.rentreediscount.com/Ciseaux-ambidextre-GRAPHMATE-14cm-droitier-et-gaucher-29610925.html" target="_blank" rel="noopener">fiche produit ↗</a>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-arts-plastiques-8">
+      <input type="checkbox" id="c5-arts-plastiques-8" data-id="c5-arts-plastiques-8">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">Ciseaux, colle, gomme, règle, scotch</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Arts plastiques</span>
+          <span class="note">Pour les arts plastiques</span>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-tous-les-jours-5">
+      <input type="checkbox" id="c5-tous-les-jours-5" data-id="c5-tous-les-jours-5">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">Colle</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Tous les jours</span>
+          <span class="note">Faire un stock</span>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-mathematiques-6">
+      <input type="checkbox" id="c5-mathematiques-6" data-id="c5-mathematiques-6">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 gomme</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Mathématiques</span>
+          
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-tous-les-jours-2">
+      <input type="checkbox" id="c5-tous-les-jours-2" data-id="c5-tous-les-jours-2">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">Gomme blanche</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Tous les jours</span>
+          
+        </span>
+      </span>
+    </label>
+    <label class="item lv-primaire" for="p193343733">
+      <input type="checkbox" id="p193343733" data-id="p193343733">
+      <span class="check"></span>
+      <span class="qty">3×</span>
+      <span class="body">
+        <span class="name">Gomme blanche technique GRAPHMATE</span>
+        <span class="meta">
+          <span class="tag tag-CE2">CE2</span><span class="tag tag-CM2">CM2</span><span class="tag tag-res" title="À garder en réserve pour l'année">réserve</span>
+          <span class="detail">CE2 ×1 + CE2 réserve ×1 + CM2 ×1</span>
+          <span class="price">0,65€ · 1,95€</span>
+          <a class="src" href="https://www.rentreediscount.com/Gomme-blanche-technique-GRAPHMATE-193343733.html" target="_blank" rel="noopener">fiche produit ↗</a>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-primaire" for="p193244660">
+      <input type="checkbox" id="p193244660" data-id="p193244660">
+      <span class="check"></span>
+      <span class="qty">13×</span>
+      <span class="body">
+        <span class="name">MAXI bâton de colle blanche LA COLLE KI COLLE 21g</span>
+        <span class="meta">
+          <span class="tag tag-CE2">CE2</span><span class="tag tag-CM2">CM2</span><span class="tag tag-res" title="À garder en réserve pour l'année">réserve</span>
+          <span class="detail">CE2 ×1 + CE2 réserve ×9 + CM2 ×3</span>
+          <span class="price">1,80€ · 23,40€</span>
+          <a class="src" href="https://www.rentreediscount.com/MAXI-baton-de-colle-blanche-LA-COLLE-KI-COLLE-21g-193244660.html" target="_blank" rel="noopener">fiche produit ↗</a>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-tous-les-jours-6">
+      <input type="checkbox" id="c5-tous-les-jours-6" data-id="c5-tous-les-jours-6">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">Scotch</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Tous les jours</span>
+          
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-tous-les-jours-3">
+      <input type="checkbox" id="c5-tous-les-jours-3" data-id="c5-tous-les-jours-3">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">Taille-crayon</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Tous les jours</span>
+          
+        </span>
+      </span>
+    </label>
+    <label class="item lv-primaire" for="p7227385">
+      <input type="checkbox" id="p7227385" data-id="p7227385">
+      <span class="check"></span>
+      <span class="qty">2×</span>
+      <span class="body">
+        <span class="name">Taille-crayon 2 trous color peps maped bicolore</span>
+        <span class="meta">
+          <span class="tag tag-CE2">CE2</span><span class="tag tag-CM2">CM2</span>
+          <span class="detail">CE2 ×1 + CM2 ×1</span>
+          <span class="price">3,13€ · 6,26€</span>
+          <a class="src" href="https://www.rentreediscount.com/Taille-crayon-2-trous-color-peps-maped-bicolore-7227385.html" target="_blank" rel="noopener">fiche produit ↗</a>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-tous-les-jours-9">
+      <input type="checkbox" id="c5-tous-les-jours-9" data-id="c5-tous-les-jours-9">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">Une paire de ciseaux</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Tous les jours</span>
+          
+        </span>
+      </span>
+    </label>
+  </section><section class="cat" data-cat="Divers">
+    <h2>Divers<span class="catcount">2 primaire · 8 collège</span></h2>
+    
+    <label class="item lv-college" for="c5-tous-les-jours-11">
+      <input type="checkbox" id="c5-tous-les-jours-11" data-id="c5-tous-les-jours-11">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 agenda</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Tous les jours</span>
+          
+        </span>
+      </span>
+    </label>
+    <label class="item lv-primaire" for="p164826557">
+      <input type="checkbox" id="p164826557" data-id="p164826557">
+      <span class="check"></span>
+      <span class="qty">1×</span>
+      <span class="body">
+        <span class="name">Agenda scolaire Smiley Graffiti ANONYM 2026-2027</span>
+        <span class="meta">
+          <span class="tag tag-CM2">CM2</span>
+          <span class="detail">CM2 ×1</span>
+          <span class="price">5,99€</span>
+          <a class="src" href="https://www.rentreediscount.com/Agenda-scolaire-Smiley-Graffiti-ANONYM-2026-2027-164826557.html" target="_blank" rel="noopener">fiche produit ↗</a>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-primaire" for="p3159895">
+      <input type="checkbox" id="p3159895" data-id="p3159895">
+      <span class="check"></span>
+      <span class="qty">2×</span>
+      <span class="body">
+        <span class="name">Boîte de 100 mouchoirs TORK jetables enchevetrés 2 plis blanc</span>
+        <span class="meta">
+          <span class="tag tag-CE2">CE2</span><span class="tag tag-CM2">CM2</span>
+          <span class="detail">CE2 ×1 + CM2 ×1</span>
+          <span class="price">1,99€ · 3,98€</span>
+          <a class="src" href="https://www.rentreediscount.com/Boite-de-100-mouchoirs-TORK-jetables-enchevetres-2-plis-blanc-3159895.html" target="_blank" rel="noopener">fiche produit ↗</a>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-education-musicale-3">
+      <input type="checkbox" id="c5-education-musicale-3" data-id="c5-education-musicale-3">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">Casque audio ou écouteurs avec prise jack</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Éducation musicale</span>
+          <span class="note">À avoir à la maison</span>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-francais-1">
+      <input type="checkbox" id="c5-francais-1" data-id="c5-francais-1">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 clé USB</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Français</span>
+          <span class="note">À confirmer avec l’enseignant</span>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-tous-les-jours-13">
+      <input type="checkbox" id="c5-tous-les-jours-13" data-id="c5-tous-les-jours-13">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">Clé USB (2 Go minimum)</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Tous les jours</span>
+          
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-arts-plastiques-4">
+      <input type="checkbox" id="c5-arts-plastiques-4" data-id="c5-arts-plastiques-4">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">2 crayons à papier : 1 HB + 1 BB</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Arts plastiques</span>
+          
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-francais-5">
+      <input type="checkbox" id="c5-francais-5" data-id="c5-francais-5">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">Ouvrages format poche</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">Français</span>
+          <span class="note">À confirmer avec l’enseignant · À prévoir en cours d’année</span>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-eps-sport-1">
+      <input type="checkbox" id="c5-eps-sport-1" data-id="c5-eps-sport-1">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 paire de baskets</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">EPS (Sport)</span>
+          <span class="note">Chaussures de ville interdites</span>
+        </span>
+      </span>
+    </label>
+    <label class="item lv-college" for="c5-eps-sport-0">
+      <input type="checkbox" id="c5-eps-sport-0" data-id="c5-eps-sport-0">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 short ou 1 survêtement</span>
+        <span class="meta">
+          <span class="tag tag-c5">5e</span><span class="tag tag-subj">EPS (Sport)</span>
+          
+        </span>
+      </span>
+    </label>
+  </section>
+</main>
+
+<footer>
+  Généré le 2026-07-06. Primaire : articles + prix rentreediscount.com, CE2+CM2 fusionnés.
+  Collège : liste de l'établissement (année 2026-2027), filtrée pour le 5ème (items 6ème/4ème/3ème et natation exclus).<br>
+  Tout est regroupé par rayon pour accélérer les achats. Les cases cochées sont enregistrées dans ce navigateur.
+</footer>
+
+<script>
+(function(){
+  var KEY='liste-rentree-2026-checked';
+  var saved={};
+  try{ saved=JSON.parse(localStorage.getItem(KEY)||'{}'); }catch(e){}
+  var boxes=Array.prototype.slice.call(document.querySelectorAll('input[type=checkbox]'));
+  var total=boxes.length;
+  var doneEl=document.getElementById('doneCount');
+  var bar=document.getElementById('progbar');
+  function apply(b){ b.closest('.item').classList.toggle('done', !!b.checked); }
+  function refresh(){
+    var n=boxes.filter(function(b){return b.checked;}).length;
+    doneEl.textContent=n; bar.style.width=(total?(n/total*100):0)+'%';
+  }
+  function save(){
+    var o={}; boxes.forEach(function(b){ if(b.checked) o[b.dataset.id]=1; });
+    try{ localStorage.setItem(KEY, JSON.stringify(o)); }catch(e){}
+  }
+  boxes.forEach(function(b){
+    if(saved[b.dataset.id]) b.checked=true;
+    apply(b);
+    b.addEventListener('change', function(){ apply(b); refresh(); save(); });
+  });
+  refresh();
+
+  var FKEY='liste-rentree-2026-filter';
+  var main=document.getElementById('list');
+  var chips=Array.prototype.slice.call(document.querySelectorAll('#filters .chip'));
+  var cats=Array.prototype.slice.call(document.querySelectorAll('.cat'));
+  function updateCats(f){
+    cats.forEach(function(cat){
+      var items=Array.prototype.slice.call(cat.querySelectorAll('.item'));
+      var any=items.some(function(it){
+        var col=it.classList.contains('lv-college');
+        return f==='all' || (f==='college'&&col) || (f==='primaire'&&!col);
+      });
+      cat.style.display = any ? '' : 'none';
+    });
+  }
+  function setFilter(f){
+    main.classList.remove('filt-primaire','filt-college');
+    if(f==='primaire') main.classList.add('filt-primaire');
+    if(f==='college') main.classList.add('filt-college');
+    chips.forEach(function(c){ c.classList.toggle('active', c.dataset.filt===f); });
+    updateCats(f);
+    try{ localStorage.setItem(FKEY, f); }catch(e){}
+  }
+  chips.forEach(function(c){ c.addEventListener('click', function(){ setFilter(c.dataset.filt); }); });
+  var savedF='all'; try{ savedF=localStorage.getItem(FKEY)||'all'; }catch(e){}
+  setFilter(savedF);
+
+  var hideBtn=document.getElementById('toggleHide');
+  hideBtn.addEventListener('click', function(){
+    var on=main.classList.toggle('hide-done');
+    hideBtn.textContent=on?'Afficher tous les articles':'Masquer les articles cochés';
+  });
+  document.getElementById('resetBtn').addEventListener('click', function(){
+    if(!confirm('Tout décocher ?')) return;
+    boxes.forEach(function(b){ b.checked=false; apply(b); });
+    refresh(); save();
+  });
+})();
+</script>
