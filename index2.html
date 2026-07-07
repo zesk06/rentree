@@ -1,0 +1,554 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Liste de courses — Collège 5ème</title>
+<style>
+  :root{--bg:#f4f6f8;--card:#fff;--ink:#1a2230;--muted:#6b7688;--line:#e6e9ef;--accent:#2f6bff;--done:#9aa4b2;--c5:#e11d48;--opt:#0891b2;--subj:#64748b;}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.4;-webkit-font-smoothing:antialiased;padding-bottom:80px}
+  header{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:12px 16px}
+  .wrap{max-width:760px;margin:0 auto}
+  h1{font-size:19px;margin:0 0 2px}
+  .sub{color:var(--muted);font-size:13px}
+  .nav{font-size:13px;margin-top:6px}
+  .nav a{color:var(--accent);text-decoration:none}
+  .bar{height:8px;background:var(--line);border-radius:99px;margin-top:10px;overflow:hidden}
+  .bar>i{display:block;height:100%;width:0;background:var(--accent);border-radius:99px;transition:width .25s}
+  .stats{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:8px;font-size:13px;color:var(--muted)}
+  .stats b{color:var(--ink)}
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  button.tb{border:1px solid var(--line);background:#fff;color:var(--ink);padding:6px 11px;border-radius:8px;font-size:13px;cursor:pointer}
+  button.tb:hover{border-color:var(--accent);color:var(--accent)}
+  .legend{max-width:760px;margin:10px auto 0;padding:0 16px;font-size:12px;color:var(--muted);display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+  main{max-width:760px;margin:16px auto;padding:0 12px}
+  .cat{background:var(--card);border:1px solid var(--line);border-radius:14px;margin-bottom:14px;overflow:hidden}
+  .cat h2{font-size:14px;margin:0;padding:12px 16px;background:#fbfcfe;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px;text-transform:uppercase;letter-spacing:.04em}
+  .cat h2 .catcount{margin-left:auto;font-size:11px;color:var(--muted);font-weight:500;text-transform:none;letter-spacing:0}
+  .item{display:flex;gap:12px;align-items:flex-start;padding:12px 16px;border-bottom:1px solid var(--line);cursor:pointer;position:relative}
+  .item:last-child{border-bottom:0}
+  .item input{position:absolute;opacity:0;pointer-events:none}
+  .check{flex:0 0 22px;width:22px;height:22px;border:2px solid #c7cedb;border-radius:6px;margin-top:1px;display:grid;place-items:center;transition:.15s}
+  .check::after{content:"";width:11px;height:6px;border-left:2.5px solid #fff;border-bottom:2.5px solid #fff;transform:rotate(-45deg) scale(0);transition:transform .15s;margin-top:-2px}
+  .item input:checked ~ .check{background:var(--accent);border-color:var(--accent)}
+  .item input:checked ~ .check::after{transform:rotate(-45deg) scale(1)}
+  .qty{flex:0 0 auto;font-weight:700;font-size:14px;color:var(--accent);min-width:26px;margin-top:1px}
+  .qty-col{color:var(--c5);font-size:16px;text-align:center}
+  .body{display:flex;flex-direction:column;gap:4px;min-width:0}
+  .name{font-size:14.5px;font-weight:600}
+  .meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+  .note{font-style:italic}
+  .tag{font-size:10px;font-weight:700;padding:1px 6px;border-radius:99px;color:#fff;text-transform:uppercase;letter-spacing:.03em}
+  .tag-opt{background:var(--opt)} .tag-subj{background:var(--subj);text-transform:none;letter-spacing:0;font-weight:600}
+  .item.done{opacity:.55}
+  .item.done .name{text-decoration:line-through;color:var(--done)}
+  .item.done .qty{color:var(--done)}
+  .hide-done .item.done{display:none}
+  footer{max-width:760px;margin:24px auto;padding:0 16px;color:var(--muted);font-size:12px;text-align:center}
+</style>
+
+<header>
+  <div class="wrap">
+    <h1>🎓 Liste de courses — Collège 5ème</h1>
+    <div class="sub">Fournitures regroupées par rayon · niveau 5ème uniquement</div>
+    <div class="nav"><a href="index.html">← Voir l'autre liste (CE2 · CM2 · 5ème)</a></div>
+    <div class="bar"><i id="progbar"></i></div>
+    <div class="stats"><span><b id="doneCount">0</b> / 51 articles cochés</span></div>
+    <div class="toolbar">
+      <button class="tb" id="toggleHide">Masquer les articles cochés</button>
+      <button class="tb" id="resetBtn">Tout décocher</button>
+    </div>
+  </div>
+</header>
+
+<div class="legend">
+  <span><span class="tag tag-subj">matière</span> à quoi sert l'article</span>
+  <span><span class="tag tag-opt">option</span> selon l'option choisie (latin, LV2)</span>
+</div>
+
+<main id="list">
+  <section class="cat"><h2>Cahiers &amp; feuilles<span class="catcount">19 art.</span></h2>
+    <label class="item" for="h5-lv2-allemand-espag-0">
+      <input type="checkbox" id="h5-lv2-allemand-espag-0" data-id="h5-lv2-allemand-espag-0">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 cahier 96 p grand format, grands carreaux, 24×32 + protège-cahier adapté</span>
+        <span class="meta"><span class="tag tag-subj">LV2 — Allemand / Espagnol / Italien</span><span class="tag tag-opt" title="Selon l'option choisie">option</span></span>
+      </span>
+    </label>
+    <label class="item" for="h5-latin-1">
+      <input type="checkbox" id="h5-latin-1" data-id="h5-latin-1">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 cahier d’activités</span>
+        <span class="meta"><span class="tag tag-subj">Latin</span><span class="tag tag-opt" title="Selon l'option choisie">option</span><span class="note">Servira pour les 3 années de latin — à voir avec l’enseignante à la rentrée</span></span>
+      </span>
+    </label>
+    <label class="item" for="h5-tous-les-jours-1">
+      <input type="checkbox" id="h5-tous-les-jours-1" data-id="h5-tous-les-jours-1">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 cahier de brouillon</span>
+        <span class="meta"><span class="tag tag-subj">Tous les jours</span></span>
+      </span>
+    </label>
+    <label class="item" for="h5-education-musicale-0">
+      <input type="checkbox" id="h5-education-musicale-0" data-id="h5-education-musicale-0">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 cahier grand format (24×32 de préférence) 48 p, petits ou grands carreaux, sans lignes de musique</span>
+        <span class="meta"><span class="tag tag-subj">Éducation musicale</span><span class="note">OU 1 porte-vues (protège-documents) 40 vues</span></span>
+      </span>
+    </label>
+    <label class="item" for="h5-latin-0">
+      <input type="checkbox" id="h5-latin-0" data-id="h5-latin-0">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 cahier grand format 24×32, sans spirale, grands carreaux, 48 p</span>
+        <span class="meta"><span class="tag tag-subj">Latin</span><span class="tag tag-opt" title="Selon l'option choisie">option</span></span>
+      </span>
+    </label>
+    <label class="item" for="h5-physique-chimie-0">
+      <input type="checkbox" id="h5-physique-chimie-0" data-id="h5-physique-chimie-0">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 cahier grand format 24×32, sans spirale, grands carreaux, 96 p</span>
+        <span class="meta"><span class="tag tag-subj">Physique-Chimie</span><span class="note">Réutilisable de l’an passé s’il reste des pages</span></span>
+      </span>
+    </label>
+    <label class="item" for="h5-arts-plastiques-0">
+      <input type="checkbox" id="h5-arts-plastiques-0" data-id="h5-arts-plastiques-0">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 cahier grand format 24×32, sans spirale, grands carreaux, 96 p + protège-cahier adapté</span>
+        <span class="meta"><span class="tag tag-subj">Arts plastiques</span><span class="note">Réutiliser celui de l’an dernier s’il est en bon état</span></span>
+      </span>
+    </label>
+    <label class="item" for="h5-svt-0">
+      <input type="checkbox" id="h5-svt-0" data-id="h5-svt-0">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 cahier grand format 24×32, sans spirale, grands carreaux, 96 p + protège-cahier adapté</span>
+        <span class="meta"><span class="tag tag-subj">SVT</span></span>
+      </span>
+    </label>
+    <label class="item" for="h5-anglais-0">
+      <input type="checkbox" id="h5-anglais-0" data-id="h5-anglais-0">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 cahier grand format 24×32, sans spirale, grands carreaux, 96 p + protège-cahier adapté</span>
+        <span class="meta"><span class="tag tag-subj">Anglais</span></span>
+      </span>
+    </label>
+    <label class="item" for="h5-histoire-geo-emc-0">
+      <input type="checkbox" id="h5-histoire-geo-emc-0" data-id="h5-histoire-geo-emc-0">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 cahier grand format 24×32, sans spirale, grands carreaux, 96 p + protège-cahier ou couverture plastique</span>
+        <span class="meta"><span class="tag tag-subj">Histoire-Géo &amp; EMC</span><span class="note">À renouveler si nécessaire</span></span>
+      </span>
+    </label>
+    <label class="item" for="h5-mathematiques-0">
+      <input type="checkbox" id="h5-mathematiques-0" data-id="h5-mathematiques-0">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">2 cahiers grand format 24×32, sans spirale, 96 p, petits carreaux + protège-cahier ou couverture plastique</span>
+        <span class="meta"><span class="tag tag-subj">Mathématiques</span></span>
+      </span>
+    </label>
+    <label class="item" for="h5-francais-0">
+      <input type="checkbox" id="h5-francais-0" data-id="h5-francais-0">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">2 cahiers grand format 24×32, sans spirale, grands carreaux, 96 p + protège-cahier ou couverture plastique</span>
+        <span class="meta"><span class="tag tag-subj">Français</span><span class="note">À renouveler en cours d’année si nécessaire</span></span>
+      </span>
+    </label>
+    <label class="item" for="h5-svt-1">
+      <input type="checkbox" id="h5-svt-1" data-id="h5-svt-1">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">10 feuilles blanches</span>
+        <span class="meta"><span class="tag tag-subj">SVT</span></span>
+      </span>
+    </label>
+    <label class="item" for="h5-mathematiques-1">
+      <input type="checkbox" id="h5-mathematiques-1" data-id="h5-mathematiques-1">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">Feuilles doubles petits carreaux (grand format)</span>
+        <span class="meta"><span class="tag tag-subj">Mathématiques</span></span>
+      </span>
+    </label>
+    <label class="item" for="h5-tous-les-jours-2">
+      <input type="checkbox" id="h5-tous-les-jours-2" data-id="h5-tous-les-jours-2">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">Feuilles simples et doubles, grands carreaux</span>
+        <span class="meta"><span class="tag tag-subj">Tous les jours</span></span>
+      </span>
+    </label>
+    <label class="item" for="h5-francais-1">
+      <input type="checkbox" id="h5-francais-1" data-id="h5-francais-1">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">Feuilles simples et doubles, grands carreaux</span>
+        <span class="meta"><span class="tag tag-subj">Français</span></span>
+      </span>
+    </label>
+    <label class="item" for="h5-histoire-geo-emc-1">
+      <input type="checkbox" id="h5-histoire-geo-emc-1" data-id="h5-histoire-geo-emc-1">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">Le cahier d’EMC de l’année précédente</span>
+        <span class="meta"><span class="tag tag-subj">Histoire-Géo &amp; EMC</span><span class="note">À conserver — fiches méthodologiques jusqu’en 3ème</span></span>
+      </span>
+    </label>
+    <label class="item" for="h5-francais-3">
+      <input type="checkbox" id="h5-francais-3" data-id="h5-francais-3">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">Livres à acheter en cours d’année + éventuellement un cahier d’exercices</span>
+        <span class="meta"><span class="tag tag-subj">Français</span><span class="note">À voir avec l’enseignant à la rentrée</span></span>
+      </span>
+    </label>
+    <label class="item" for="h5-anglais-2">
+      <input type="checkbox" id="h5-anglais-2" data-id="h5-anglais-2">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 TD (environ 8 €)</span>
+        <span class="meta"><span class="tag tag-subj">Anglais</span><span class="note">À voir à la rentrée avec les enseignants</span></span>
+      </span>
+    </label></section><section class="cat"><h2>Classeurs &amp; rangement<span class="catcount">4 art.</span></h2>
+    <label class="item" for="h5-technologie-0">
+      <input type="checkbox" id="h5-technologie-0" data-id="h5-technologie-0">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 classeur souple A4 (pas épais)</span>
+        <span class="meta"><span class="tag tag-subj">Technologie</span></span>
+      </span>
+    </label>
+    <label class="item" for="h5-technologie-2">
+      <input type="checkbox" id="h5-technologie-2" data-id="h5-technologie-2">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">5 intercalaires</span>
+        <span class="meta"><span class="tag tag-subj">Technologie</span></span>
+      </span>
+    </label>
+    <label class="item" for="h5-technologie-1">
+      <input type="checkbox" id="h5-technologie-1" data-id="h5-technologie-1">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">50 pochettes transparentes</span>
+        <span class="meta"><span class="tag tag-subj">Technologie</span></span>
+      </span>
+    </label>
+    <label class="item" for="h5-histoire-geo-emc-2">
+      <input type="checkbox" id="h5-histoire-geo-emc-2" data-id="h5-histoire-geo-emc-2">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 porte-vues d’une quarantaine de vues</span>
+        <span class="meta"><span class="tag tag-subj">Histoire-Géo &amp; EMC</span><span class="note">Pour l’AP</span></span>
+      </span>
+    </label></section><section class="cat"><h2>Écriture<span class="catcount">3 art.</span></h2>
+    <label class="item" for="h5-tous-les-jours-6">
+      <input type="checkbox" id="h5-tous-les-jours-6" data-id="h5-tous-les-jours-6">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">Crayons à papier</span>
+        <span class="meta"><span class="tag tag-subj">Tous les jours</span></span>
+      </span>
+    </label>
+    <label class="item" for="h5-tous-les-jours-5">
+      <input type="checkbox" id="h5-tous-les-jours-5" data-id="h5-tous-les-jours-5">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">Stylos : bleu, noir, rouge, vert</span>
+        <span class="meta"><span class="tag tag-subj">Tous les jours</span><span class="note">Dans la trousse</span></span>
+      </span>
+    </label>
+    <label class="item" for="h5-latin-2">
+      <input type="checkbox" id="h5-latin-2" data-id="h5-latin-2">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">Stylos de couleur : 1 bleu foncé, 1 bleu turquoise/clair, 1 violet, 1 vert, 1 orange, 1 noir, 1 rouge</span>
+        <span class="meta"><span class="tag tag-subj">Latin</span><span class="tag tag-opt" title="Selon l'option choisie">option</span></span>
+      </span>
+    </label></section><section class="cat"><h2>Couleurs &amp; dessin<span class="catcount">2 art.</span></h2>
+    <label class="item" for="h5-tous-les-jours-9">
+      <input type="checkbox" id="h5-tous-les-jours-9" data-id="h5-tous-les-jours-9">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">Crayons de couleurs</span>
+        <span class="meta"><span class="tag tag-subj">Tous les jours</span></span>
+      </span>
+    </label>
+    <label class="item" for="h5-tous-les-jours-14">
+      <input type="checkbox" id="h5-tous-les-jours-14" data-id="h5-tous-les-jours-14">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">Surligneurs</span>
+        <span class="meta"><span class="tag tag-subj">Tous les jours</span></span>
+      </span>
+    </label></section><section class="cat"><h2>Ardoise<span class="catcount">3 art.</span></h2>
+    <label class="item" for="h5-tous-les-jours-15">
+      <input type="checkbox" id="h5-tous-les-jours-15" data-id="h5-tous-les-jours-15">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 ardoise blanche</span>
+        <span class="meta"><span class="tag tag-subj">Tous les jours</span><span class="note">Pour les 6ème et 5ème</span></span>
+      </span>
+    </label>
+    <label class="item" for="h5-lv2-allemand-espag-1">
+      <input type="checkbox" id="h5-lv2-allemand-espag-1" data-id="h5-lv2-allemand-espag-1">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">Espagnol : 1 feutre bleu effaçable pour ardoise blanche</span>
+        <span class="meta"><span class="tag tag-subj">LV2 — Allemand / Espagnol / Italien</span><span class="tag tag-opt" title="Selon l'option choisie">option</span><span class="note">Ne pas acheter d’ardoise blanche</span></span>
+      </span>
+    </label>
+    <label class="item" for="h5-anglais-1">
+      <input type="checkbox" id="h5-anglais-1" data-id="h5-anglais-1">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 feutre pour ardoise</span>
+        <span class="meta"><span class="tag tag-subj">Anglais</span></span>
+      </span>
+    </label></section><section class="cat"><h2>Géométrie &amp; calcul<span class="catcount">6 art.</span></h2>
+    <label class="item" for="h5-mathematiques-6">
+      <input type="checkbox" id="h5-mathematiques-6" data-id="h5-mathematiques-6">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 calculatrice type « collège »</span>
+        <span class="meta"><span class="tag tag-subj">Mathématiques</span></span>
+      </span>
+    </label>
+    <label class="item" for="h5-mathematiques-2">
+      <input type="checkbox" id="h5-mathematiques-2" data-id="h5-mathematiques-2">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 compas</span>
+        <span class="meta"><span class="tag tag-subj">Mathématiques</span></span>
+      </span>
+    </label>
+    <label class="item" for="h5-mathematiques-3">
+      <input type="checkbox" id="h5-mathematiques-3" data-id="h5-mathematiques-3">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 double décimètre (règle 20 cm)</span>
+        <span class="meta"><span class="tag tag-subj">Mathématiques</span></span>
+      </span>
+    </label>
+    <label class="item" for="h5-mathematiques-4">
+      <input type="checkbox" id="h5-mathematiques-4" data-id="h5-mathematiques-4">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 équerre</span>
+        <span class="meta"><span class="tag tag-subj">Mathématiques</span></span>
+      </span>
+    </label>
+    <label class="item" for="h5-mathematiques-5">
+      <input type="checkbox" id="h5-mathematiques-5" data-id="h5-mathematiques-5">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 rapporteur en plastique transparent</span>
+        <span class="meta"><span class="tag tag-subj">Mathématiques</span></span>
+      </span>
+    </label>
+    <label class="item" for="h5-tous-les-jours-8">
+      <input type="checkbox" id="h5-tous-les-jours-8" data-id="h5-tous-les-jours-8">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">Règle</span>
+        <span class="meta"><span class="tag tag-subj">Tous les jours</span></span>
+      </span>
+    </label></section><section class="cat"><h2>Colle, coupe &amp; correction<span class="catcount">6 art.</span></h2>
+    <label class="item" for="h5-tous-les-jours-10">
+      <input type="checkbox" id="h5-tous-les-jours-10" data-id="h5-tous-les-jours-10">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">Colle</span>
+        <span class="meta"><span class="tag tag-subj">Tous les jours</span><span class="note">À renouveler</span></span>
+      </span>
+    </label>
+    <label class="item" for="h5-tous-les-jours-13">
+      <input type="checkbox" id="h5-tous-les-jours-13" data-id="h5-tous-les-jours-13">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">Effaceur ou ruban correcteur</span>
+        <span class="meta"><span class="tag tag-subj">Tous les jours</span><span class="note">Non liquide</span></span>
+      </span>
+    </label>
+    <label class="item" for="h5-tous-les-jours-7">
+      <input type="checkbox" id="h5-tous-les-jours-7" data-id="h5-tous-les-jours-7">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">Gomme</span>
+        <span class="meta"><span class="tag tag-subj">Tous les jours</span></span>
+      </span>
+    </label>
+    <label class="item" for="h5-tous-les-jours-12">
+      <input type="checkbox" id="h5-tous-les-jours-12" data-id="h5-tous-les-jours-12">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 paire de ciseaux</span>
+        <span class="meta"><span class="tag tag-subj">Tous les jours</span></span>
+      </span>
+    </label>
+    <label class="item" for="h5-tous-les-jours-11">
+      <input type="checkbox" id="h5-tous-les-jours-11" data-id="h5-tous-les-jours-11">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">Ruban adhésif (scotch)</span>
+        <span class="meta"><span class="tag tag-subj">Tous les jours</span></span>
+      </span>
+    </label>
+    <label class="item" for="h5-francais-2">
+      <input type="checkbox" id="h5-francais-2" data-id="h5-francais-2">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 stylo bleu qui s’efface (stylo encre ou stylo à gomme)</span>
+        <span class="meta"><span class="tag tag-subj">Français</span></span>
+      </span>
+    </label></section><section class="cat"><h2>Divers<span class="catcount">8 art.</span></h2>
+    <label class="item" for="h5-tous-les-jours-0">
+      <input type="checkbox" id="h5-tous-les-jours-0" data-id="h5-tous-les-jours-0">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 agenda</span>
+        <span class="meta"><span class="tag tag-subj">Tous les jours</span></span>
+      </span>
+    </label>
+    <label class="item" for="h5-tous-les-jours-16">
+      <input type="checkbox" id="h5-tous-les-jours-16" data-id="h5-tous-les-jours-16">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 cadenas pour casier élève</span>
+        <span class="meta"><span class="tag tag-subj">Tous les jours</span></span>
+      </span>
+    </label>
+    <label class="item" for="h5-tous-les-jours-3">
+      <input type="checkbox" id="h5-tous-les-jours-3" data-id="h5-tous-les-jours-3">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 clé USB</span>
+        <span class="meta"><span class="tag tag-subj">Tous les jours</span><span class="note">1 Go conseillée</span></span>
+      </span>
+    </label>
+    <label class="item" for="h5-tous-les-jours-4">
+      <input type="checkbox" id="h5-tous-les-jours-4" data-id="h5-tous-les-jours-4">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">Écouteurs filaires (prise jack)</span>
+        <span class="meta"><span class="tag tag-subj">Tous les jours</span></span>
+      </span>
+    </label>
+    <label class="item" for="h5-eps-sport-0">
+      <input type="checkbox" id="h5-eps-sport-0" data-id="h5-eps-sport-0">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 gourde</span>
+        <span class="meta"><span class="tag tag-subj">EPS (Sport)</span></span>
+      </span>
+    </label>
+    <label class="item" for="h5-eps-sport-1">
+      <input type="checkbox" id="h5-eps-sport-1" data-id="h5-eps-sport-1">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 jogging, legging ou short + 1 tee-shirt de rechange</span>
+        <span class="meta"><span class="tag tag-subj">EPS (Sport)</span></span>
+      </span>
+    </label>
+    <label class="item" for="h5-eps-sport-2">
+      <input type="checkbox" id="h5-eps-sport-2" data-id="h5-eps-sport-2">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 paire de baskets running ou multisports</span>
+        <span class="meta"><span class="tag tag-subj">EPS (Sport)</span><span class="note">Pas de chaussures en toile, semelles épaisses</span></span>
+      </span>
+    </label>
+    <label class="item" for="h5-eps-sport-3">
+      <input type="checkbox" id="h5-eps-sport-3" data-id="h5-eps-sport-3">
+      <span class="check"></span>
+      <span class="qty qty-col">•</span>
+      <span class="body">
+        <span class="name">1 veste coupe-vent</span>
+        <span class="meta"><span class="tag tag-subj">EPS (Sport)</span></span>
+      </span>
+    </label></section>
+</main>
+
+<footer>
+  Généré le 2026-07-07. Liste 5ème de l'établissement, regroupée par rayon pour accélérer les achats
+  (colonnes 6ème/4ème/3ème, Parcours éducatifs, CDI-IRD et ULIS non retenus). Les cases cochées sont enregistrées dans ce navigateur.
+</footer>
+
+<script>
+(function(){
+  var KEY='liste-college2-5e-checked';
+  var saved={};
+  try{ saved=JSON.parse(localStorage.getItem(KEY)||'{}'); }catch(e){}
+  var boxes=Array.prototype.slice.call(document.querySelectorAll('input[type=checkbox]'));
+  var total=boxes.length;
+  var doneEl=document.getElementById('doneCount');
+  var bar=document.getElementById('progbar');
+  function apply(b){ b.closest('.item').classList.toggle('done', !!b.checked); }
+  function refresh(){ var n=boxes.filter(function(b){return b.checked;}).length; doneEl.textContent=n; bar.style.width=(total?(n/total*100):0)+'%'; }
+  function save(){ var o={}; boxes.forEach(function(b){ if(b.checked) o[b.dataset.id]=1; }); try{ localStorage.setItem(KEY, JSON.stringify(o)); }catch(e){} }
+  boxes.forEach(function(b){ if(saved[b.dataset.id]) b.checked=true; apply(b); b.addEventListener('change', function(){ apply(b); refresh(); save(); }); });
+  refresh();
+  var main=document.getElementById('list');
+  var hideBtn=document.getElementById('toggleHide');
+  hideBtn.addEventListener('click', function(){ var on=main.classList.toggle('hide-done'); hideBtn.textContent=on?'Afficher tous les articles':'Masquer les articles cochés'; });
+  document.getElementById('resetBtn').addEventListener('click', function(){ if(!confirm('Tout décocher ?')) return; boxes.forEach(function(b){ b.checked=false; apply(b); }); refresh(); save(); });
+})();
+</script>
