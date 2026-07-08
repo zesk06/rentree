@@ -61,6 +61,19 @@
   .filt-college .item.lv-primaire{display:none}
   .legend{max-width:760px;margin:10px auto 0;padding:0 16px;font-size:12px;color:var(--muted);display:flex;gap:12px;flex-wrap:wrap;align-items:center}
   footer{max-width:760px;margin:24px auto;padding:0 16px;color:var(--muted);font-size:12px;text-align:center}
+  .modal{position:fixed;inset:0;background:rgba(15,23,42,.5);display:flex;align-items:center;justify-content:center;padding:16px;z-index:50}
+  .modal[hidden]{display:none}
+  .modal-card{background:#fff;border-radius:16px;max-width:520px;width:100%;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.3);position:relative;max-height:90vh;overflow:auto}
+  .modal-card h3{margin:0 0 6px;font-size:17px}
+  .modal-desc{margin:0 0 12px;font-size:13px;color:var(--muted)}
+  .modal-x{position:absolute;top:10px;right:14px;border:0;background:none;font-size:24px;line-height:1;cursor:pointer;color:var(--muted)}
+  #ioText{width:100%;min-height:120px;border:1px solid var(--line);border-radius:10px;padding:10px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;resize:vertical;word-break:break-all}
+  .modal-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .modal-actions button{border:1px solid var(--line);background:#fff;color:var(--ink);padding:8px 13px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer}
+  .modal-actions button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+  .modal-actions button:hover{border-color:var(--accent)}
+  .modal-hint{margin-top:10px;font-size:13px;min-height:18px}
+  .modal-hint.ok{color:#0e9f6e}.modal-hint.err{color:#e11d48}
 </style>
 
 <header>
@@ -81,6 +94,8 @@
     </div>
     <div class="toolbar">
       <button class="tb" id="toggleHide">Masquer les articles cochés</button>
+      <button class="tb" id="exportBtn">⬆️ Exporter / sauvegarder</button>
+      <button class="tb" id="importBtn">⬇️ Importer</button>
       <button class="tb" id="resetBtn">Tout décocher</button>
     </div>
   </div>
@@ -1546,6 +1561,18 @@
   </section>
 </main>
 
+<div id="ioModal" class="modal" hidden>
+  <div class="modal-card">
+    <button class="modal-x" id="ioClose" aria-label="Fermer">×</button>
+    <h3 id="ioTitle"></h3>
+    <p class="modal-desc" id="ioDesc"></p>
+    <textarea id="ioText" spellcheck="false"></textarea>
+    <input type="file" id="ioFile" accept=".json,.txt,application/json" hidden>
+    <div class="modal-actions" id="ioActions"></div>
+    <div class="modal-hint" id="ioHint"></div>
+  </div>
+</div>
+
 <footer>
   Généré le 2026-07-06. Primaire : articles + prix rentreediscount.com, CE2+CM2 fusionnés.
   Collège : liste de l'établissement (année 2026-2027), filtrée pour le 5ème (items 6ème/4ème/3ème et natation exclus).<br>
@@ -1613,5 +1640,91 @@
     boxes.forEach(function(b){ b.checked=false; apply(b); });
     refresh(); save();
   });
+
+  // ---- export / import (sauvegarde hors navigateur & partage) ----
+  var LABEL='CE2 · CM2 · 5ème';
+  function b64e(s){ return btoa(unescape(encodeURIComponent(s))); }
+  function b64d(s){ return decodeURIComponent(escape(atob(s))); }
+  function checkedIds(){ return boxes.filter(function(b){return b.checked;}).map(function(b){return b.dataset.id;}); }
+  var modal=document.getElementById('ioModal');
+  var ioTitle=document.getElementById('ioTitle'), ioDesc=document.getElementById('ioDesc'),
+      ioText=document.getElementById('ioText'), ioActions=document.getElementById('ioActions'),
+      ioHint=document.getElementById('ioHint'), ioFile=document.getElementById('ioFile');
+  function closeModal(){ modal.hidden=true; }
+  function setHint(m,c){ ioHint.textContent=m||''; ioHint.className='modal-hint'+(c?' '+c:''); }
+  function mkbtn(label,cls,fn){ var b=document.createElement('button'); b.textContent=label; if(cls)b.className=cls; b.addEventListener('click',fn); return b; }
+  document.getElementById('ioClose').addEventListener('click', closeModal);
+  modal.addEventListener('click', function(e){ if(e.target===modal) closeModal(); });
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape'&&!modal.hidden) closeModal(); });
+
+  function doExport(){
+    var ids=checkedIds();
+    var payload={v:1,list:LABEL,date:new Date().toISOString().slice(0,10),count:ids.length,checked:ids};
+    var code=b64e(JSON.stringify(payload));
+    ioTitle.textContent='Exporter / sauvegarder';
+    ioDesc.textContent=ids.length+' article(s) coché(s). Copie ce code (ou télécharge le fichier) pour sauvegarder ton avancement ou le partager. Il se réimporte via « Importer ».';
+    ioText.value=code; ioText.readOnly=true; ioText.placeholder='';
+    ioActions.innerHTML=''; setHint('');
+    ioActions.appendChild(mkbtn('📋 Copier le code','primary',function(){
+      ioText.focus(); ioText.select();
+      var done=function(){ setHint('Copié dans le presse-papier ✓','ok'); };
+      if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(code).then(done,function(){ try{document.execCommand('copy');done();}catch(e){setHint('Sélectionne et copie manuellement.','err');} }); }
+      else { try{document.execCommand('copy');done();}catch(e){setHint('Sélectionne et copie manuellement.','err');} }
+    }));
+    ioActions.appendChild(mkbtn('💾 Télécharger .json',null,function(){
+      var blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+      var url=URL.createObjectURL(blob);
+      var a=document.createElement('a'); a.href=url; a.download='liste-rentree-'+payload.date+'.json'; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function(){URL.revokeObjectURL(url);},1500);
+      setHint('Fichier téléchargé ✓','ok');
+    }));
+    ioActions.appendChild(mkbtn('Fermer',null,closeModal));
+    modal.hidden=false;
+  }
+
+  function parsePayload(text){
+    text=(text||'').trim(); if(!text) return null;
+    var obj=null;
+    try{ obj=JSON.parse(text); }catch(e){ try{ obj=JSON.parse(b64d(text)); }catch(e2){ return null; } }
+    if(!obj||!Array.isArray(obj.checked)) return null;
+    return obj;
+  }
+  function applyImport(mode){
+    var obj=parsePayload(ioText.value);
+    if(!obj){ setHint('Code invalide — vérifie le copier-coller ou le fichier.','err'); return; }
+    var set={}; obj.checked.forEach(function(id){ set[id]=1; });
+    var known=0;
+    boxes.forEach(function(b){
+      var want=!!set[b.dataset.id];
+      if(want) known++;
+      if(mode==='replace'){ b.checked=want; }
+      else if(want){ b.checked=true; }
+      apply(b);
+    });
+    refresh(); save();
+    var n=boxes.filter(function(b){return b.checked;}).length;
+    var miss=obj.checked.length-known;
+    setHint((mode==='replace'?'État remplacé':'Import fusionné')+' — '+n+' article(s) coché(s)'+(miss>0?' ('+miss+' id inconnu(s) ignoré(s))':'')+' ✓','ok');
+  }
+  function doImport(){
+    ioTitle.textContent='Importer / restaurer';
+    ioDesc.textContent='Colle le code exporté (ou charge un fichier .json), puis choisis Remplacer (écrase l’état actuel) ou Fusionner (ajoute seulement les cases cochées).';
+    ioText.value=''; ioText.readOnly=false; ioText.placeholder='Colle ici le code exporté…';
+    ioActions.innerHTML=''; setHint('');
+    ioActions.appendChild(mkbtn('📂 Depuis un fichier…',null,function(){ ioFile.click(); }));
+    ioActions.appendChild(mkbtn('Remplacer','primary',function(){ applyImport('replace'); }));
+    ioActions.appendChild(mkbtn('Fusionner',null,function(){ applyImport('merge'); }));
+    ioActions.appendChild(mkbtn('Fermer',null,closeModal));
+    modal.hidden=false;
+  }
+  ioFile.addEventListener('change', function(){
+    var f=ioFile.files&&ioFile.files[0]; if(!f) return;
+    var r=new FileReader();
+    r.onload=function(){ ioText.value=r.result; setHint('Fichier chargé — choisis Remplacer ou Fusionner.',''); };
+    r.readAsText(f);
+    ioFile.value='';
+  });
+  document.getElementById('exportBtn').addEventListener('click', doExport);
+  document.getElementById('importBtn').addEventListener('click', doImport);
 })();
 </script>
